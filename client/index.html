@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earshot</title>
+<link rel="manifest" href="/manifest.json">
+<style>
+  :root{--bg:#171209;--amber:#F5A83C;--cream:#F3E9D2;--muted:#9A8B6C}
+  body{background:var(--bg);color:var(--cream);font-family:system-ui;display:grid;place-items:center;height:100vh;margin:0}
+  h1{font-weight:800}h1 span{color:var(--amber)}
+  #status{color:var(--muted);font-family:monospace}
+</style>
+</head>
+<body>
+  <div style="text-align:center">
+    <h1>Earshot<span>.</span></h1>
+    <p id="status">starting…</p>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "comment": "Six bots ringed ~150m around a center point; run one per entry, stand at center with your phone.",
+  "center": {"lat": 37.7702, "lon": -122.4571},
+  "bots": [
+    {"name": "kestrel", "lat": 37.77155, "lon": -122.4571},
+    {"name": "bramble", "lat": 37.77088, "lon": -122.45545},
+    {"name": "wren",    "lat": 37.76952, "lon": -122.45545},
+    {"name": "moss",    "lat": 37.76885, "lon": -122.4571},
+    {"name": "tarn",    "lat": 37.76952, "lon": -122.45875},
+    {"name": "fenn",    "lat": 37.77088, "lon": -122.45875}
+  ]
+}

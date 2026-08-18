@@ -1,0 +1,9 @@
+{
+  "name": "Earshot",
+  "short_name": "Earshot",
+  "display": "standalone",
+  "background_color": "#171209",
+  "theme_color": "#171209",
+  "start_url": "/",
+  "icons": []
+}

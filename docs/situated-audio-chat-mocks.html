@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earshot — UX Mocks v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#171209;
+    --panel:#211A0F;
+    --panel-2:#2A2114;
+    --line:#3A3020;
+    --amber:#F5A83C;
+    --amber-soft:#C9862B;
+    --amber-dim:#7A5A24;
+    --cream:#F3E9D2;
+    --muted:#9A8B6C;
+    --hush:#7D8C97;
+    --hush-dim:#46525B;
+    --radius:14px;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --disp:'Bricolage Grotesque',var(--sans);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--cream);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  ::selection{background:var(--amber);color:var(--bg)}
+  button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+  button:focus-visible,a:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:6px}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+
+  header.site{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  .brand{font-family:var(--disp);font-weight:800;font-size:clamp(26px,4vw,38px);letter-spacing:-.01em}
+  .brand .dot{color:var(--amber)}
+  .site-sub{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.06em}
+  .lede{color:var(--muted);max-width:66ch;line-height:1.55;margin:10px 0 22px;font-size:15px}
+  .lede em{color:var(--cream);font-style:normal}
+
+  .flow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .flow button{
+    font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+    padding:9px 14px;border:1px solid var(--line);border-radius:999px;color:var(--muted);
+    display:flex;gap:8px;align-items:center;transition:all .15s;
+  }
+  .flow button .n{color:var(--amber-dim)}
+  .flow button:hover{border-color:var(--amber-dim);color:var(--cream)}
+  .flow button.on{background:var(--panel-2);border-color:var(--amber);color:var(--cream)}
+  .flow button.on .n{color:var(--amber)}
+
+  .demo-controls{display:none;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .demo-controls.show{display:flex}
+  .demo-controls button{
+    font-family:var(--mono);font-size:11px;letter-spacing:.06em;padding:8px 12px;
+    border:1px dashed var(--amber-dim);border-radius:8px;color:var(--amber-soft);transition:all .15s;
+  }
+  .demo-controls button:hover{border-color:var(--amber);color:var(--amber)}
+  .demo-controls .lab{font-family:var(--mono);font-size:11px;color:var(--muted);align-self:center;letter-spacing:.06em}
+
+  .stage{display:flex;gap:36px;align-items:flex-start;flex-wrap:wrap}
+  .phone{
+    width:380px;max-width:100%;height:740px;flex:none;position:relative;overflow:hidden;
+    background:linear-gradient(180deg,#1B1509 0%,#171209 60%);
+    border:1px solid var(--line);border-radius:34px;
+    box-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(243,233,210,.06);
+    transition:width .4s ease, height .4s ease;
+  }
+  .phone.landscape{width:740px;height:380px}
+  .screen{position:absolute;inset:0;display:none;flex-direction:column}
+  .screen.on{display:flex}
+  .statusbar{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted);padding:16px 22px 0}
+
+  .notes{flex:1;min-width:280px}
+  .notes h2{font-family:var(--disp);font-weight:600;font-size:18px;margin-bottom:12px}
+  .note{border-left:2px solid var(--line);padding:2px 0 2px 14px;margin-bottom:16px}
+  .note b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:4px}
+  .note p{color:var(--muted);font-size:14px;line-height:1.55}
+  .note p strong{color:var(--cream);font-weight:500}
+
+  .modal-scrim{flex:1;display:flex;align-items:center;justify-content:center;padding:26px;position:relative;overflow-y:auto}
+  .card{
+    position:relative;width:100%;max-width:400px;background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);padding:26px 24px 24px;box-shadow:0 18px 50px rgba(0,0,0,.5);
+  }
+  .card .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:10px}
+  .card h1{font-family:var(--disp);font-weight:800;line-height:1.05;letter-spacing:-.01em}
+  .card.location h1{font-size:27px;margin-bottom:14px}
+  .card p{color:var(--muted);font-size:14.5px;line-height:1.6;margin-bottom:12px}
+  .card p strong{color:var(--cream);font-weight:600}
+  .pledge{display:flex;gap:10px;align-items:flex-start;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:12px;margin:14px 0 18px}
+  .pledge svg{flex:none;margin-top:1px}
+  .pledge span{font-size:13px;line-height:1.5;color:var(--cream)}
+  .ok{
+    width:100%;padding:14px;border-radius:12px;background:var(--amber);color:#221604;
+    font-weight:600;font-size:16px;letter-spacing:.02em;transition:transform .08s, filter .15s;
+  }
+  .ok:hover{filter:brightness(1.07)}
+  .ok:active{transform:scale(.985)}
+
+  .card.phones{text-align:center;padding-top:30px}
+  .card.phones h1{font-size:42px;margin:16px 0 10px}
+  .card.phones .art{display:flex;justify-content:center}
+  .card.phones p{max-width:30ch;margin-left:auto;margin-right:auto}
+  .lr{display:flex;justify-content:center;gap:18px;font-family:var(--mono);font-size:12px;color:var(--amber);margin:6px 0 16px;letter-spacing:.2em}
+  .landscape .card.phones{padding-top:20px}
+  .landscape .card.phones h1{font-size:30px;margin:10px 0 8px}
+  .landscape .card.phones .art svg{width:56px;height:46px}
+
+  /* ---------- main screen ---------- */
+  .appbar{display:flex;justify-content:space-between;align-items:baseline;padding:18px 22px 6px}
+  .landscape .appbar{padding-top:12px}
+  .appbar .logo{font-family:var(--disp);font-weight:800;font-size:19px}
+  .appbar .logo .dot{color:var(--amber)}
+  .appbar .status{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:right;line-height:1.6}
+  .appbar .status .live{color:var(--amber)}
+
+  .soundstage{padding:14px 22px 0}
+  .landscape .soundstage{padding-top:6px}
+  .ruler{position:relative;height:56px}
+  .landscape .ruler{height:44px}
+  .ruler .axis{position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line)}
+  .ruler .tick{position:absolute;top:50%;width:1px;height:7px;transform:translateY(-50%);background:var(--line)}
+  .ruler .tick.mid{height:13px;background:var(--amber-dim)}
+  .ruler .lbl{position:absolute;top:calc(50% + 12px);font-family:var(--mono);font-size:10px;color:var(--muted);transform:translateX(-50%);letter-spacing:.1em}
+  .pin{position:absolute;top:50%;width:9px;height:9px;border-radius:50%;transform:translate(-50%,-50%);background:var(--amber);transition:left .6s ease, background .3s}
+  .pin.you{width:13px;height:13px;background:var(--cream);box-shadow:0 0 0 3px var(--bg),0 0 0 4px var(--cream)}
+  .pin.hushed{background:var(--hush-dim)}
+  .pin .ring{position:absolute;inset:-7px;border:1.5px solid var(--amber);border-radius:50%;opacity:0;pointer-events:none}
+  .pin.talking .ring{animation:ripple 1.5s ease-out infinite}
+  .pin.talking .ring.r2{animation-delay:.5s}
+  @keyframes ripple{0%{transform:scale(.4);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+  .leaders{display:block;width:100%;height:34px;flex:none}
+  .landscape .leaders{height:24px}
+  .leaders path{stroke:var(--line);stroke-width:1.2;fill:none}
+  .leaders path.talking{stroke:var(--amber-soft)}
+
+  /* horizontal avatar array; scrolls when neighbours exceed comfortable width */
+  .strip-outer{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;flex:none}
+  .strip{display:flex;justify-content:space-between;padding:0 22px;gap:6px;min-width:100%;width:max-content}
+  .tile{
+    flex:1 0 52px;max-width:76px;display:flex;flex-direction:column;align-items:center;gap:6px;
+    min-width:0;transition:opacity .3s;
+  }
+  .tile .avatar{
+    position:relative;width:48px;height:48px;border-radius:12px;overflow:hidden;
+    background:var(--panel-2);border:2px solid transparent;transition:border-color .3s;
+  }
+  .landscape .tile .avatar{width:42px;height:42px}
+  .tile.talking .avatar{border-color:var(--amber)}
+  .tile.me .avatar{border:2px dashed var(--muted)}
+  .avatar svg{display:block;width:100%;height:100%}
+  .tname{font-size:11.5px;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tile.me .tname{color:var(--muted)}
+  .talk-tag{display:flex;gap:2.5px;align-items:flex-end;height:10px;opacity:0;transition:opacity .2s}
+  .landscape .talk-tag{height:8px}
+  .tile.talking .talk-tag{opacity:1}
+  .talk-tag i{display:block;width:2.5px;background:var(--amber);border-radius:1px;animation:bars .8s ease-in-out infinite}
+  .talk-tag i:nth-child(1){height:5px}
+  .talk-tag i:nth-child(2){height:10px;animation-delay:.15s}
+  .talk-tag i:nth-child(3){height:7px;animation-delay:.3s}
+  @keyframes bars{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1.1)}}
+
+  /* hush cluster: the shush affordance and the hush count live together in one pill */
+  .hush-pill{
+    display:flex;align-items:center;gap:5px;height:30px;padding:0 9px;
+    border:1px solid var(--line);border-radius:999px;color:var(--muted);transition:all .15s;
+    font-family:var(--mono);font-size:11px;font-weight:600;
+  }
+  button.hush-pill:hover{border-color:var(--hush);color:var(--cream)}
+  .hush-pill.active{background:var(--hush-dim);border-color:var(--hush);color:var(--cream)}
+  .hush-pill.static{border-style:dashed;cursor:default}
+  .hush-pill .cnt{letter-spacing:.02em}
+  .hush-pill.zero .cnt{display:none}
+  .hush-pill svg{display:block;flex:none}
+
+  .tile[data-att="1"]{opacity:.75}
+  .tile[data-att="2"]{opacity:.55}
+  .tile[data-att="3"]{opacity:.4}
+  .tile[data-att="4"]{opacity:.28}
+  .tile[data-att="5"]{opacity:.2}
+
+  .spacer{flex:1;min-height:6px}
+  .mic{
+    margin:0 14px 16px;padding:13px;border-radius:var(--radius);border:1px solid var(--line);
+    background:var(--panel-2);display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--muted);
+  }
+  .landscape .mic{margin-bottom:12px;padding:9px 13px;font-size:12.5px}
+  .mic .glow{width:10px;height:10px;border-radius:50%;background:var(--amber);flex:none;animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,168,60,.5)}50%{box-shadow:0 0 0 8px rgba(245,168,60,0)}}
+  .mic b{color:var(--cream);font-weight:600}
+
+  @media (prefers-reduced-motion:reduce){
+    .pin.talking .ring,.talk-tag i,.mic .glow{animation:none}
+    .pin,.phone{transition:none}
+  }
+  @media (max-width:820px){.stage{flex-direction:column}.phone{margin:0 auto}.phone.landscape{width:100%;max-width:740px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="site">
+    <div class="brand">Earshot<span class="dot">.</span> <span style="font-weight:400;font-size:.55em;color:var(--muted)">UX mocks · v4</span></div>
+    <div class="site-sub">SITUATED AUDIO CHAT — SPEC OF 17 AUG 2026</div>
+  </header>
+  <p class="lede"><em>Earshot</em> — people within earshot, rendered in stereo. v4: fader-pulled-low hush icon, hush count clustered into the affordance, plus demo toggles (live screen) for <em>crowded neighbourhoods</em> and <em>landscape rotation</em>.</p>
+
+  <nav class="flow" aria-label="Screens">
+    <button class="on" data-go="s1"><span class="n">01</span> Location consent</button>
+    <button data-go="s2"><span class="n">02</span> Headphones on</button>
+    <button data-go="s3"><span class="n">03</span> Live soundstage</button>
+  </nav>
+
+  <div class="demo-controls" id="demoControls">
+    <span class="lab">DEMO:</span>
+    <button id="crowdBtn">Add 4 neighbours (crowded)</button>
+    <button id="rotateBtn">Rotate to landscape</button>
+  </div>
+
+  <div class="stage">
+    <div class="phone" id="phone" role="group" aria-label="Phone mockup">
+
+      <!-- SCREEN 1 : LOCATION -->
+      <section class="screen on" id="s1">
+        <div class="statusbar"><span>09:41</span><span>●●●○</span></div>
+        <div class="modal-scrim">
+          <div class="card location">
+            <div class="kicker">Before we start</div>
+            <h1>Earshot uses your precise location</h1>
+            <p>Your position is only used to work out <strong>where your neighbours are relative to you</strong>, so their voices come from the right direction.</p>
+            <div class="pledge">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l5 2.2v3.5c0 3.4-2.1 5.9-5 7.3-2.9-1.4-5-3.9-5-7.3V3.7L8 1.5z" stroke="#F5A83C" stroke-width="1.3"/><path d="M5.6 8l1.7 1.7 3.1-3.4" stroke="#F5A83C" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <span>Your location is <b>never stored</b> — it's used in the moment, then discarded.</span>
+            </div>
+            <button class="ok" data-go="s2">OK</button>
+            <p style="text-align:center;margin:12px 0 0;font-size:12px">Next, your phone will ask for permission.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2 : HEADPHONES -->
+      <section class="screen" id="s2">
+        <div class="statusbar"><span>09:41</span><span>●●●○</span></div>
+        <div class="modal-scrim">
+          <div class="card phones">
+            <div class="art">
+              <svg width="88" height="72" viewBox="0 0 88 72" fill="none" aria-hidden="true">
+                <path d="M14 46v-8C14 21 27.4 8 44 8s30 13 30 30v8" stroke="#F3E9D2" stroke-width="3.5" stroke-linecap="round"/>
+                <rect x="8" y="44" width="16" height="22" rx="6" fill="#F5A83C"/>
+                <rect x="64" y="44" width="16" height="22" rx="6" fill="#F5A83C"/>
+              </svg>
+            </div>
+            <h1>Headphones on!</h1>
+            <div class="lr"><span>L ◄</span><span>► R</span></div>
+            <p>Earshot places each voice around you in <strong>stereo space</strong>. It only works well with stereo headphones or earbuds.</p>
+            <button class="ok" data-go="s3" style="margin-top:14px">OK</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3 : LIVE -->
+      <section class="screen" id="s3">
+        <div class="appbar">
+          <div class="logo">Earshot<span class="dot">.</span></div>
+          <div class="status"><span class="live">● LIVE</span><br><span id="nCount">5 neighbours</span> · refresh in 3:12</div>
+        </div>
+
+        <div class="soundstage">
+          <div class="ruler" id="ruler" aria-hidden="true">
+            <div class="axis"></div>
+            <div class="lbl" style="left:0%">L</div>
+            <div class="lbl" style="left:50%">YOU</div>
+            <div class="lbl" style="left:100%">R</div>
+          </div>
+        </div>
+        <svg class="leaders" id="leaders" aria-hidden="true" preserveAspectRatio="none"></svg>
+
+        <div class="strip-outer" id="stripOuter">
+          <div class="strip" id="strip" aria-label="Neighbours sorted left to right"></div>
+        </div>
+
+        <div class="spacer"></div>
+        <div class="mic">
+          <span class="glow" aria-hidden="true"></span>
+          <span><b>Your mic is open.</b> Neighbours hear you from your position.</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- annotations -->
+    <aside class="notes" id="notes">
+      <h2>What to look at</h2>
+      <div class="note" data-for="s1"><b>01 · Consent copy</b><p>Leads with the <strong>why</strong> (relative position → directional voices) before the ask, and pins the spec's privacy promise — “never stored” — in its own visual pledge. The OK routes to the system permission flow.</p></div>
+      <div class="note" data-for="s1"><b>Tone</b><p>Warm-black + amber: the vernacular of backlit audio hardware — VU meters, radio dials. Amber consistently means <strong>sound</strong>; cool slate consistently means <strong>silenced</strong>.</p></div>
+      <div class="note" data-for="s2" style="display:none"><b>02 · Large type per spec</b><p>“Headphones on!” at display size, with L/R glyphs foreshadowing the stereo mechanic. One idea, one action.</p></div>
+      <div class="note" data-for="s3" style="display:none"><b>03 · The hush cluster</b><p>The fader pill under each avatar — a channel fader pulled low — is both the <strong>affordance and the counter</strong>: tap to hush for an hour, tap again to undo; the number beside the finger is the total active hushes on that person. Your own pill (dashed, non-interactive) shows hushes on you.</p></div>
+      <div class="note" data-for="s3" style="display:none"><b>Crowded neighbourhoods</b><p>The strip holds <strong>~6 tiles without scrolling</strong> in portrait; beyond that it scrolls horizontally while the ruler keeps every pin visible, so the soundstage is always the complete picture. Try the demo toggle above.</p></div>
+      <div class="note" data-for="s3" style="display:none"><b>Landscape</b><p>Rotation is a <strong>gift</strong> to this app: the soundstage widens (pan resolution improves), more tiles fit unscrolled, and vertical chrome compresses. Try the rotate toggle above.</p></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  // ---------- identicon generator ----------
+  function identicon(seed){
+    let h=0; for(const c of seed) h=(h*31+c.charCodeAt(0))>>>0;
+    const rnd=()=> (h=(h*1103515245+12345)>>>0, h/2**32);
+    const hues=[38,32,44,26,50], hue=hues[Math.floor(rnd()*hues.length)];
+    const shapes=[];
+    for(let i=0;i<3;i++){
+      const cx=10+rnd()*32, cy=10+rnd()*32, r=6+rnd()*14, rot=rnd()*360;
+      const light=30+i*16, kind=rnd();
+      const fill=`hsl(${hue} ${55+rnd()*20}% ${light}%)`;
+      if(kind<.4) shapes.push(`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}"/>`);
+      else if(kind<.75) shapes.push(`<rect x="${cx-r}" y="${cy-r}" width="${r*2}" height="${r*2}" rx="${r/2.5}" fill="${fill}" transform="rotate(${rot} ${cx} ${cy})"/>`);
+      else shapes.push(`<polygon points="${cx},${cy-r} ${cx+r},${cy+r} ${cx-r},${cy+r}" fill="${fill}" transform="rotate(${rot} ${cx} ${cy})"/>`);
+    }
+    return `<svg viewBox="0 0 52 52"><rect width="52" height="52" fill="hsl(${hue} 30% 12%)"/>${shapes.join("")}</svg>`;
+  }
+
+  // hush: mixer fader pulled low — "pull their channel down"
+  const hushIcon =
+    '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">'+
+    '<path d="M10 3v14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'+                             // fader track
+    '<rect x="6.4" y="12.2" width="7.2" height="3.4" rx="1.7" fill="currentColor"/>'+                                   // knob, near bottom
+    '<path d="M5 3.2h2.4M12.6 3.2H15M5 7.5h2.4M12.6 7.5H15" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" opacity=".55"/>'+ // scale marks
+    '</svg>';
+
+  // ---------- model ----------
+  const basePeople=[
+    {id:"kestrel", name:"Kestrel", pan:-0.82, hushes:0, myHush:false, talking:false},
+    {id:"bramble", name:"Bramble", pan:-0.35, hushes:1, myHush:false, talking:true },
+    {id:"you",     name:"You",     pan: 0.00, hushes:1, me:true,      talking:false},
+    {id:"wren",    name:"Wren",    pan: 0.18, hushes:0, myHush:false, talking:false},
+    {id:"moss",    name:"Moss",    pan: 0.55, hushes:3, myHush:false, talking:true },
+    {id:"tarn",    name:"Tarn",    pan: 0.90, hushes:0, myHush:false, talking:false},
+  ];
+  const extraPeople=[
+    {id:"fenn",  name:"Fenn",  pan:-0.62, hushes:0, myHush:false, talking:false},
+    {id:"sorrel",name:"Sorrel",pan:-0.12, hushes:0, myHush:false, talking:true },
+    {id:"heath", name:"Heath", pan: 0.38, hushes:2, myHush:false, talking:false},
+    {id:"lark",  name:"Lark",  pan: 0.72, hushes:0, myHush:false, talking:false},
+  ];
+  let crowded=false;
+  const roster=()=> (crowded?[...basePeople,...extraPeople]:[...basePeople]).sort((a,b)=>a.pan-b.pan);
+
+  const ruler=document.getElementById("ruler");
+  const leaders=document.getElementById("leaders");
+  const strip=document.getElementById("strip");
+  const stripOuter=document.getElementById("stripOuter");
+  const nCount=document.getElementById("nCount");
+
+  const totalHushes=p=> p.hushes + (p.myHush?1:0);
+
+  function render(){
+    const people=roster();
+    nCount.textContent=(people.length-1)+" neighbours";
+
+    ruler.querySelectorAll(".pin,.tick").forEach(e=>e.remove());
+    for(let t=0;t<=10;t++){
+      const tick=document.createElement("div");
+      tick.className="tick"+(t===5?" mid":"");
+      tick.style.left=(t*10)+"%";
+      ruler.appendChild(tick);
+    }
+    people.forEach(p=>{
+      const pin=document.createElement("div");
+      const att=totalHushes(p);
+      pin.className="pin"+(p.me?" you":"")+(p.talking?" talking":"")+(att>0&&!p.me?" hushed":"");
+      pin.style.left=(50+p.pan*50)+"%";
+      pin.innerHTML='<span class="ring"></span><span class="ring r2"></span>';
+      ruler.appendChild(pin);
+    });
+
+    strip.innerHTML="";
+    people.forEach(p=>{
+      const att=totalHushes(p);
+      const tile=document.createElement("div");
+      tile.className="tile"+(p.talking?" talking":"")+(p.me?" me":"");
+      tile.dataset.att=p.me?0:Math.min(att,5);
+      const pill = p.me
+        ? `<span class="hush-pill static ${att===0?"zero":""}" title="${att} active hush${att===1?"":"es"} on you">${hushIcon}<span class="cnt">${att}</span></span>`
+        : `<button class="hush-pill ${p.myHush?"active":""} ${att===0?"zero":""}" data-id="${p.id}" aria-pressed="${p.myHush}" title="${p.myHush?"Undo your hush (56 min left)":"Hush for 1 hour"} · ${att} active hush${att===1?"":"es"}">${hushIcon}<span class="cnt">${att}</span></button>`;
+      tile.innerHTML=`
+        <div class="avatar">${identicon(p.id)}</div>
+        <div class="tname">${p.me?"You":p.name}</div>
+        <span class="talk-tag" aria-label="talking"><i></i><i></i><i></i></span>
+        ${pill}
+      `;
+      strip.appendChild(tile);
+    });
+    strip.querySelectorAll("button.hush-pill").forEach(b=>b.addEventListener("click",()=>{
+      const p=[...basePeople,...extraPeople].find(x=>x.id===b.dataset.id);
+      p.myHush=!p.myHush; render();
+    }));
+
+    drawLeaders(people);
+  }
+
+  function drawLeaders(people){
+    requestAnimationFrame(()=>{
+      const svgBox=leaders.getBoundingClientRect();
+      if(svgBox.width===0) return;
+      leaders.setAttribute("viewBox",`0 0 ${svgBox.width} ${svgBox.height}`);
+      let paths="";
+      const pins=[...ruler.querySelectorAll(".pin")];
+      const avs=[...strip.querySelectorAll(".tile .avatar")];
+      people.forEach((p,i)=>{
+        const pinBox=pins[i].getBoundingClientRect();
+        const avBox=avs[i].getBoundingClientRect();
+        const x1=pinBox.left+pinBox.width/2 - svgBox.left;
+        const x2=avBox.left+avBox.width/2 - svgBox.left;
+        const h=svgBox.height;
+        paths+=`<path class="${p.talking?"talking":""}" d="M${x1.toFixed(1)},0 C${x1.toFixed(1)},${(h*.55).toFixed(1)} ${x2.toFixed(1)},${(h*.45).toFixed(1)} ${x2.toFixed(1)},${h}"/>`;
+      });
+      leaders.innerHTML=paths;
+    });
+  }
+
+  render();
+  addEventListener("resize",render);
+  stripOuter.addEventListener("scroll",()=>drawLeaders(roster()));
+
+  setInterval(()=>{
+    [...basePeople,...extraPeople].forEach(p=>{ if(!p.me && Math.random()<0.35) p.talking=!p.talking; });
+    if(document.getElementById("s3").classList.contains("on")) render();
+  },2600);
+
+  // ---------- demo controls ----------
+  const phone=document.getElementById("phone");
+  document.getElementById("crowdBtn").addEventListener("click",e=>{
+    crowded=!crowded;
+    e.target.textContent=crowded?"Back to 5 neighbours":"Add 4 neighbours (crowded)";
+    render();
+  });
+  document.getElementById("rotateBtn").addEventListener("click",e=>{
+    phone.classList.toggle("landscape");
+    e.target.textContent=phone.classList.contains("landscape")?"Rotate to portrait":"Rotate to landscape";
+    setTimeout(render,450);
+  });
+
+  // ---------- screen switching ----------
+  function go(id){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id));
+    document.querySelectorAll(".flow button").forEach(b=>b.classList.toggle("on",b.dataset.go===id));
+    document.querySelectorAll(".note").forEach(nt=>nt.style.display = nt.dataset.for===id ? "" : "none");
+    document.getElementById("demoControls").classList.toggle("show", id==="s3");
+    if(id==="s3") render();
+  }
+  document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
+</script>
+</body>
+</html>

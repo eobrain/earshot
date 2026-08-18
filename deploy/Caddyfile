@@ -1,0 +1,12 @@
+# Replace earshot.example.com with your domain (DNS A record -> VPS IP).
+earshot.example.com {
+    encode gzip
+    handle /ws {
+        reverse_proxy 127.0.0.1:8700
+    }
+    handle {
+        root * /opt/earshot/client/dist
+        try_files {path} /index.html
+        file_server
+    }
+}
