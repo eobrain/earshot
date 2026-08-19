@@ -1,4 +1,4 @@
-"""Earshot coordinator (M0/M1 seed).
+"""Earshot coordinator.
 
 Single process, all state in RAM, nothing persisted, positions never logged.
 Run: uvicorn server.app:app --host 127.0.0.1 --port 8700
@@ -7,6 +7,10 @@ Run: uvicorn server.app:app --host 127.0.0.1 --port 8700
 from __future__ import annotations
 
 import asyncio
+import base64
+import hashlib
+import hmac
+import os
 import time
 from dataclasses import dataclass, field
 
@@ -140,6 +144,23 @@ async def _broadcast_hushcount(tgt: str) -> None:
     for sid in listeners:
         if sid in sessions:
             await _send(sessions[sid], msg)
+
+
+@app.get("/ice")
+async def ice_servers() -> dict:
+    """ICE config for clients and bots. TURN creds are coturn's use-auth-secret
+    scheme: username = expiry timestamp, credential = HMAC-SHA1(secret, username).
+    Set EARSHOT_TURN_HOST (e.g. turn:example.com:3478) and EARSHOT_TURN_SECRET
+    (matching static-auth-secret in turnserver.conf) to enable TURN."""
+    servers: list[dict] = [{"urls": "stun:stun.l.google.com:19302"}]
+    host, secret = os.environ.get("EARSHOT_TURN_HOST"), os.environ.get("EARSHOT_TURN_SECRET")
+    if host and secret:
+        username = str(int(time.time()) + 24 * 3600)
+        cred = base64.b64encode(
+            hmac.new(secret.encode(), username.encode(), hashlib.sha1).digest()
+        ).decode()
+        servers.append({"urls": host, "username": username, "credential": cred})
+    return {"iceServers": servers}
 
 
 @app.on_event("startup")

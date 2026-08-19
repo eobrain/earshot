@@ -10,6 +10,9 @@ Restart=always
 RestartSec=3
 # privacy: no coordinates in logs; uvicorn access log off
 Environment=UVICORN_ACCESS_LOG=0
+# TURN credential minting for /ice — set both to enable (match turnserver.conf):
+#Environment=EARSHOT_TURN_HOST=turn:earshot.example.com:3478
+#Environment=EARSHOT_TURN_SECRET=CHANGE_ME_SHARED_SECRET
 
 [Install]
 WantedBy=multi-user.target
