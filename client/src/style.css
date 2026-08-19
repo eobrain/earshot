@@ -1,0 +1,83 @@
+:root{
+  --bg:#171209; --panel:#211A0F; --panel-2:#2A2114; --line:#3A3020;
+  --amber:#F5A83C; --amber-soft:#C9862B; --amber-dim:#7A5A24;
+  --cream:#F3E9D2; --muted:#9A8B6C; --hush:#7D8C97; --hush-dim:#46525B;
+  --radius:14px;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sans:'IBM Plex Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--cream);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:6px}
+#app{height:100dvh;display:flex;flex-direction:column}
+
+/* ---------- modals ---------- */
+.modal-scrim{flex:1;display:flex;align-items:center;justify-content:center;padding:26px}
+.card{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--radius);padding:26px 24px 24px;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.card .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:10px}
+.card h1{font-weight:800;line-height:1.05}
+.card.location h1{font-size:27px;margin-bottom:14px}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.6;margin-bottom:12px}
+.card p strong{color:var(--cream)}
+.pledge{display:flex;gap:10px;align-items:flex-start;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:12px;margin:14px 0 18px}
+.pledge span{font-size:13px;line-height:1.5;color:var(--cream)}
+.ok{width:100%;padding:14px;border-radius:12px;background:var(--amber);color:#221604;font-weight:600;font-size:16px}
+.ok:active{transform:scale(.985)}
+.card.phones{text-align:center;padding-top:30px}
+.card.phones h1{font-size:42px;margin:16px 0 10px}
+.lr{display:flex;justify-content:center;gap:18px;font-family:var(--mono);font-size:12px;color:var(--amber);margin:6px 0 16px;letter-spacing:.2em}
+
+/* ---------- live screen ---------- */
+.appbar{display:flex;justify-content:space-between;align-items:baseline;padding:18px 22px 6px}
+.appbar .logo{font-weight:800;font-size:19px}
+.appbar .logo span{color:var(--amber)}
+.appbar .status{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:right;line-height:1.6}
+.appbar .status .live{color:var(--amber)}
+.appbar .status .off{color:var(--hush)}
+.soundstage{padding:14px 22px 0}
+.ruler{position:relative;height:56px}
+.ruler .axis{position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line)}
+.ruler .tick{position:absolute;top:50%;width:1px;height:7px;transform:translateY(-50%);background:var(--line)}
+.ruler .tick.mid{height:13px;background:var(--amber-dim)}
+.ruler .lbl{position:absolute;top:calc(50% + 12px);font-family:var(--mono);font-size:10px;color:var(--muted);transform:translateX(-50%);letter-spacing:.1em}
+.pin{position:absolute;top:50%;width:9px;height:9px;border-radius:50%;transform:translate(-50%,-50%);background:var(--amber);transition:left .6s ease, background .3s}
+.pin.you{width:13px;height:13px;background:var(--cream);box-shadow:0 0 0 3px var(--bg),0 0 0 4px var(--cream)}
+.pin.hushed{background:var(--hush-dim)}
+.pin .ring{position:absolute;inset:-7px;border:1.5px solid var(--amber);border-radius:50%;opacity:0;pointer-events:none}
+.pin.talking .ring{animation:ripple 1.5s ease-out infinite}
+.pin.talking .ring.r2{animation-delay:.5s}
+@keyframes ripple{0%{transform:scale(.4);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+.leaders{display:block;width:100%;height:34px;flex:none}
+.leaders path{stroke:var(--line);stroke-width:1.2;fill:none}
+.leaders path.talking{stroke:var(--amber-soft)}
+.strip-outer{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;flex:none}
+.strip{display:flex;justify-content:space-between;padding:0 22px;gap:6px;min-width:100%;width:max-content}
+.tile{flex:1 0 52px;max-width:76px;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;transition:opacity .3s}
+.tile .avatar{position:relative;width:48px;height:48px;border-radius:12px;overflow:hidden;background:var(--panel-2);border:2px solid transparent;transition:border-color .3s}
+.tile.talking .avatar{border-color:var(--amber)}
+.tile.me .avatar{border:2px dashed var(--muted)}
+.avatar svg{display:block;width:100%;height:100%}
+.tname{font-size:11.5px;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile.me .tname{color:var(--muted)}
+.hush-pill{display:flex;align-items:center;gap:5px;height:30px;padding:0 9px;border:1px solid var(--line);border-radius:999px;color:var(--muted);
+  font-family:var(--mono);font-size:11px;font-weight:600;transition:all .15s}
+button.hush-pill:active{transform:scale(.95)}
+.hush-pill.active{background:var(--hush-dim);border-color:var(--hush);color:var(--cream)}
+.hush-pill.static{border-style:dashed;cursor:default}
+.hush-pill.zero .cnt{display:none}
+.hush-pill svg{display:block;flex:none}
+.tile[data-att="1"]{opacity:.75}
+.tile[data-att="2"]{opacity:.55}
+.tile[data-att="3"]{opacity:.4}
+.tile[data-att="4"]{opacity:.28}
+.tile[data-att="5"]{opacity:.2}
+.spacer{flex:1;min-height:6px}
+.mic{margin:0 14px 16px;padding:13px;border-radius:var(--radius);border:1px solid var(--line);background:var(--panel-2);
+  display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--muted)}
+.mic .dot{width:10px;height:10px;border-radius:50%;background:var(--hush);flex:none}
+.mic b{color:var(--cream)}
+.empty{padding:30px 22px;color:var(--muted);font-family:var(--mono);font-size:12px;text-align:center}
+@media (prefers-reduced-motion:reduce){.pin.talking .ring{animation:none}.pin{transition:none}}
