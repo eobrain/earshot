@@ -29,6 +29,7 @@ async function start(engine: AudioEngine): Promise<void> {
   const stage = mountSoundstage(app, {
     onHush: (id) => { co.hush(id); state.myHushes.add(id); notify(); },
     onUnhush: (id) => { co.unhush(id); state.myHushes.delete(id); notify(); },
+    micOpen: !!engine.mic,
   });
   subscribe(stage.render);
 

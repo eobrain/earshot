@@ -6,6 +6,7 @@ import { handle, hushIcon, identicon } from "./identicon";
 export interface SoundstageHooks {
   onHush: (id: string) => void;
   onUnhush: (id: string) => void;
+  micOpen: boolean;
 }
 
 export function mountSoundstage(root: HTMLElement, hooks: SoundstageHooks): { render: () => void } {
@@ -32,8 +33,10 @@ export function mountSoundstage(root: HTMLElement, hooks: SoundstageHooks): { re
     <div id="empty" class="empty" hidden>no neighbours in earshot yet — waiting for others to join…</div>
     <div class="spacer"></div>
     <div class="mic">
-      <span class="dot" aria-hidden="true"></span>
-      <span><b>Positions are live.</b> Voice arrives at milestone M2 — mic and neighbour audio are not connected yet.</span>
+      <span class="dot ${hooks.micOpen ? "open" : ""}" aria-hidden="true"></span>
+      <span>${hooks.micOpen
+        ? "<b>Your mic is open.</b> Neighbours hear you from your position."
+        : "<b>Listening only.</b> Mic is unavailable or was denied — you can hear neighbours, they can't hear you."}</span>
     </div>`;
 
   const ruler = root.querySelector("#ruler") as HTMLElement;
