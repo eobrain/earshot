@@ -13,7 +13,9 @@ import argparse
 import asyncio
 import fractions
 import json
+import logging
 import time
+import urllib.error
 import urllib.request
 import uuid
 
@@ -72,14 +74,28 @@ class Bot:
         self.config = RTCConfiguration(iceServers=self._ice(ice_url))
 
     def _ice(self, ice_url: str | None) -> list[RTCIceServer]:
+        default_stun = [RTCIceServer(urls=["stun:stun.l.google.com:19302"])]
         if not ice_url:
-            return [RTCIceServer(urls="stun:stun.l.google.com:19302")]
-        with urllib.request.urlopen(ice_url) as r:
-            data = json.loads(r.read())
-        return [
-            RTCIceServer(urls=s["urls"], username=s.get("username"), credential=s.get("credential"))
-            for s in data["iceServers"]
-        ]
+            return default_stun
+        try:
+            with urllib.request.urlopen(ice_url) as r:
+                body = r.read().decode("utf-8")
+            if not body or not body.strip():
+                logging.warning(f"[{self.name}] Empty response from ICE URL: {ice_url}, falling back to default STUN")
+                return default_stun
+            data = json.loads(body)
+            servers = [
+                RTCIceServer(
+                    urls=s["urls"] if isinstance(s["urls"], list) else [s["urls"]],
+                    username=s.get("username"),
+                    credential=s.get("credential"),
+                )
+                for s in data.get("iceServers", [])
+            ]
+            return servers if servers else default_stun
+        except (urllib.error.URLError, json.JSONDecodeError, KeyError, Exception) as e:
+            logging.warning(f"[{self.name}] Failed to parse ICE config from {ice_url}: {e}, falling back to default STUN")
+            return default_stun
 
     async def send(self, obj: dict) -> None:
         await self.ws.send(json.dumps(obj))
@@ -161,18 +177,28 @@ class Bot:
             return
         if "description" in payload:
             desc = payload["description"]
-            await pc.setRemoteDescription(RTCSessionDescription(sdp=desc["sdp"], type=desc["type"]))
-            if desc["type"] == "offer":
+            if desc.get("type") == "offer":
+                if pc.signalingState == "have-local-offer":
+                    if self.id < frm:
+                        # Ignore incoming glare offer since our offer has precedence
+                        return
+                await pc.setRemoteDescription(RTCSessionDescription(sdp=desc["sdp"], type=desc["type"]))
                 answer = await pc.createAnswer()
                 await pc.setLocalDescription(answer)
                 await self._send_desc(frm, pc)
+            elif desc.get("type") == "answer":
+                if pc.signalingState == "have-local-offer":
+                    await pc.setRemoteDescription(RTCSessionDescription(sdp=desc["sdp"], type=desc["type"]))
         elif "candidate" in payload and payload["candidate"]:
             c = payload["candidate"]
             if c.get("candidate"):
-                cand = candidate_from_sdp(c["candidate"])
-                cand.sdpMid = c.get("sdpMid")
-                cand.sdpMLineIndex = c.get("sdpMLineIndex")
-                await pc.addIceCandidate(cand)
+                try:
+                    cand = candidate_from_sdp(c["candidate"])
+                    cand.sdpMid = c.get("sdpMid")
+                    cand.sdpMLineIndex = c.get("sdpMLineIndex")
+                    await pc.addIceCandidate(cand)
+                except Exception:
+                    pass
 
     async def _close(self, pid: str) -> None:
         pc = self.pcs.pop(pid, None)

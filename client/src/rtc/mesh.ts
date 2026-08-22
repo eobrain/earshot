@@ -14,11 +14,15 @@ export class Mesh {
   private peers = new Map<string, PeerConn>();
 
   constructor(
-    private myId: string,
+    private localId: string,
     private co: Coordinator,
     private engine: AudioEngine,
     private iceServers: RTCIceServer[],
   ) {}
+
+  get myId(): string {
+    return this.localId;
+  }
 
   /** Reconcile connections against the latest roster (architecture §5). */
   sync(neighborIds: string[]): void {
@@ -37,10 +41,14 @@ export class Mesh {
     pc.ontrack = (e) => this.engine.attach(id, e.streams[0] ?? new MediaStream([e.track]));
     pc.onicecandidate = (e) => { if (e.candidate) this.co.sig(id, { candidate: e.candidate.toJSON() }); };
     pc.onnegotiationneeded = async () => {
+      // Deterministic initiator: only create an offer if this.localId < peerId
+      if (this.localId >= id) return;
       try {
         conn.makingOffer = true;
         await pc.setLocalDescription();
         this.co.sig(id, { description: pc.localDescription!.toJSON() });
+      } catch (err) {
+        console.warn(`[mesh] negotiation error with ${id}:`, err);
       } finally {
         conn.makingOffer = false;
       }
@@ -54,24 +62,49 @@ export class Mesh {
     let conn = this.peers.get(from);
     if (!conn) return; // signaling from someone not (yet) in our roster: drop
     const { pc } = conn;
-    const polite = this.myId > from; // lower id offers; higher id is polite
+    const polite = this.localId > from; // lower id offers; higher id is polite
 
     if (payload.description) {
       const desc = payload.description as RTCSessionDescriptionInit;
-      const collision = desc.type === "offer" && (conn.makingOffer || pc.signalingState !== "stable");
+      const isOffer = desc.type === "offer";
+      const collision = isOffer && (conn.makingOffer || pc.signalingState !== "stable");
       conn.ignoreOffer = !polite && collision;
       if (conn.ignoreOffer) return;
-      if (collision) await Promise.all([pc.setLocalDescription({ type: "rollback" }), Promise.resolve()]).catch(() => {});
-      await pc.setRemoteDescription(desc);
-      if (desc.type === "offer") {
-        await pc.setLocalDescription();
-        this.co.sig(from, { description: pc.localDescription!.toJSON() });
+
+      if (desc.type === "answer" && pc.signalingState !== "have-local-offer") {
+        return; // ignore answer if not expecting one
+      }
+
+      if (collision) {
+        try {
+          await pc.setLocalDescription({ type: "rollback" });
+        } catch {
+          // ignore rollback error
+        }
+      }
+
+      try {
+        await pc.setRemoteDescription(desc);
+      } catch (err) {
+        console.warn(`[mesh] failed to set remote description from ${from}:`, err);
+        return;
+      }
+
+      if (isOffer) {
+        try {
+          await pc.setLocalDescription();
+          this.co.sig(from, { description: pc.localDescription!.toJSON() });
+        } catch (err) {
+          console.warn(`[mesh] failed to set local description for answer to ${from}:`, err);
+        }
       }
     } else if (payload.candidate) {
       try {
         await pc.addIceCandidate(payload.candidate);
       } catch (e) {
-        if (!conn.ignoreOffer) throw e;
+        if (!conn.ignoreOffer) {
+          console.warn(`[mesh] failed to add ICE candidate from ${from}:`, e);
+        }
       }
     }
   }
