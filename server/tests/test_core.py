@@ -96,3 +96,89 @@ def test_hushes_survive_setter_departure_by_default():
     assert reg.count("b") == 1
     assert reg.drop_user("a") == {"b"}
     assert reg.count("b") == 0
+
+# ---------------- ice & bot ----------------
+
+import asyncio
+from unittest.mock import patch, MagicMock
+from server.app import ice_servers
+from sim.bot import Bot
+
+def test_ice_servers_endpoint():
+    res = asyncio.run(ice_servers())
+    assert "iceServers" in res
+    assert res["iceServers"] == [{"urls": ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"]}]
+
+def test_bot_ice_resilience():
+    bot = Bot.__new__(Bot)
+    bot.name = "testbot"
+
+    # None url
+    res = bot._ice(None)
+    assert len(res) == 1
+    assert res[0].urls == ["stun:stun.l.google.com:19302"]
+
+    # Empty response
+    mock_resp = MagicMock()
+    mock_resp.read.return_value = b""
+    mock_resp.__enter__.return_value = mock_resp
+    with patch("urllib.request.urlopen", return_value=mock_resp):
+        res = bot._ice("http://example.com/ice")
+        assert len(res) == 1
+        assert res[0].urls == ["stun:stun.l.google.com:19302"]
+
+    # Invalid JSON
+    mock_resp.read.return_value = b"<html>not json</html>"
+    with patch("urllib.request.urlopen", return_value=mock_resp):
+        res = bot._ice("http://example.com/ice")
+        assert len(res) == 1
+        assert res[0].urls == ["stun:stun.l.google.com:19302"]
+
+    # Valid JSON
+    mock_resp.read.return_value = b'{"iceServers": [{"urls": ["stun:custom.stun.com:19302"]}]}'
+    with patch("urllib.request.urlopen", return_value=mock_resp):
+        res = bot._ice("http://example.com/ice")
+        assert len(res) == 1
+        assert res[0].urls == ["stun:custom.stun.com:19302"]
+
+from unittest.mock import AsyncMock
+
+def test_bot_glare_handling_lower_id_ignores():
+    bot = Bot.__new__(Bot)
+    bot.id = "bot-a"
+    bot.pcs = {}
+
+    mock_pc = MagicMock()
+    mock_pc.signalingState = "have-local-offer"
+    mock_pc.setRemoteDescription = AsyncMock()
+    mock_pc.createAnswer = AsyncMock()
+    mock_pc.setLocalDescription = AsyncMock()
+    bot.pcs["bot-b"] = mock_pc
+    bot._send_desc = AsyncMock()
+
+    # When receiving offer from bot-b (higher id) while bot-a has local offer: ignore
+    asyncio.run(bot._sig("bot-b", {"description": {"type": "offer", "sdp": "v=0..."}}))
+    mock_pc.setRemoteDescription.assert_not_called()
+    mock_pc.createAnswer.assert_not_called()
+
+def test_bot_glare_handling_higher_id_accepts():
+    bot = Bot.__new__(Bot)
+    bot.id = "bot-b"
+    bot.pcs = {}
+
+    mock_pc = MagicMock()
+    mock_pc.signalingState = "stable"
+    mock_pc.setRemoteDescription = AsyncMock()
+    mock_pc.createAnswer = AsyncMock(return_value=MagicMock())
+    mock_pc.setLocalDescription = AsyncMock()
+    bot.pcs["bot-a"] = mock_pc
+    bot._send_desc = AsyncMock()
+
+    # When receiving offer from bot-a (lower id): accepts and answers
+    asyncio.run(bot._sig("bot-a", {"description": {"type": "offer", "sdp": "v=0..."}}))
+    mock_pc.setRemoteDescription.assert_called_once()
+    mock_pc.createAnswer.assert_called_once()
+    mock_pc.setLocalDescription.assert_called_once()
+    bot._send_desc.assert_called_once_with("bot-a", mock_pc)
+
+

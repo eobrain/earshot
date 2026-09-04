@@ -152,14 +152,14 @@ async def ice_servers() -> dict:
     scheme: username = expiry timestamp, credential = HMAC-SHA1(secret, username).
     Set EARSHOT_TURN_HOST (e.g. turn:example.com:3478) and EARSHOT_TURN_SECRET
     (matching static-auth-secret in turnserver.conf) to enable TURN."""
-    servers: list[dict] = [{"urls": "stun:stun.l.google.com:19302"}]
+    servers: list[dict] = [{"urls": ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"]}]
     host, secret = os.environ.get("EARSHOT_TURN_HOST"), os.environ.get("EARSHOT_TURN_SECRET")
     if host and secret:
         username = str(int(time.time()) + 24 * 3600)
         cred = base64.b64encode(
             hmac.new(secret.encode(), username.encode(), hashlib.sha1).digest()
         ).decode()
-        servers.append({"urls": host, "username": username, "credential": cred})
+        servers.append({"urls": [host], "username": username, "credential": cred})
     return {"iceServers": servers}
 
 
