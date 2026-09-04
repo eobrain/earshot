@@ -2,6 +2,7 @@
 // Faithful port of the approved mocks v4 (docs/situated-audio-chat-mocks.html).
 import { state } from "../state/store";
 import { handle, hushIcon, identicon } from "./identicon";
+import { shareIcon, shareInvite } from "./share";
 
 export interface SoundstageHooks {
   onHush: (id: string) => void;
@@ -13,9 +14,12 @@ export function mountSoundstage(root: HTMLElement, hooks: SoundstageHooks): { re
   root.innerHTML = `
     <div class="appbar">
       <div class="logo">Earshot<span>.</span></div>
-      <div class="status">
-        <span id="conn" class="live">● LIVE</span><br>
-        <span id="counts">—</span>
+      <div class="bar-right">
+        <button id="share" class="share-btn" title="Invite people to Earshot" aria-label="Invite people">${shareIcon}</button>
+        <div class="status">
+          <span id="conn" class="live">● LIVE</span><br>
+          <span id="counts">—</span>
+        </div>
       </div>
     </div>
     <div class="soundstage">
@@ -30,7 +34,11 @@ export function mountSoundstage(root: HTMLElement, hooks: SoundstageHooks): { re
     <div class="strip-outer" id="stripOuter">
       <div class="strip" id="strip" aria-label="Neighbours sorted left to right"></div>
     </div>
-    <div id="empty" class="empty" hidden>no neighbours in earshot yet — waiting for others to join…</div>
+    <div id="empty" class="empty" hidden>
+      <p class="empty-title">No neighbours in earshot yet</p>
+      <p class="empty-sub">Earshot comes alive when people you know are on it too.</p>
+      <button id="invite" class="invite-btn">${shareIcon} Invite people</button>
+    </div>
     <div class="spacer"></div>
     <div class="mic">
       <span class="dot ${hooks.micOpen ? "open" : ""}" aria-hidden="true"></span>
@@ -46,6 +54,8 @@ export function mountSoundstage(root: HTMLElement, hooks: SoundstageHooks): { re
   const conn = root.querySelector("#conn") as HTMLElement;
   const counts = root.querySelector("#counts") as HTMLElement;
   const empty = root.querySelector("#empty") as HTMLElement;
+  root.querySelector("#share")!.addEventListener("click", () => shareInvite());
+  root.querySelector("#invite")!.addEventListener("click", () => shareInvite());
 
   interface Person { id: string; pan: number; hushes: number; me: boolean }
 

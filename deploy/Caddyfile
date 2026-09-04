@@ -4,6 +4,9 @@ earshot.example.com {
     handle /ws {
         reverse_proxy 127.0.0.1:8700
     }
+    handle /ice {
+        reverse_proxy 127.0.0.1:8700
+    }
     handle {
         root * /opt/earshot/client/dist
         try_files {path} /index.html
