@@ -37,6 +37,11 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-ra
 .appbar .status{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:right;line-height:1.6}
 .appbar .status .live{color:var(--amber)}
 .appbar .status .off{color:var(--hush)}
+.bar-right{display:flex;align-items:center;gap:14px}
+.share-btn{width:34px;height:34px;border:1px solid var(--line);border-radius:999px;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;transition:all .15s;flex:none}
+.share-btn:hover{border-color:var(--amber-dim);color:var(--cream)}
+.share-btn:active{transform:scale(.93)}
 .soundstage{padding:14px 22px 0}
 .ruler{position:relative;height:56px}
 .ruler .axis{position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line)}
@@ -81,5 +86,16 @@ button.hush-pill:active{transform:scale(.95)}
 .mic .dot.open{background:var(--amber);animation:pulse 1.6s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,168,60,.5)}50%{box-shadow:0 0 0 8px rgba(245,168,60,0)}}
 .mic b{color:var(--cream)}
-.empty{padding:30px 22px;color:var(--muted);font-family:var(--mono);font-size:12px;text-align:center}
+.empty{padding:30px 22px;text-align:center}
+.empty-title{font-weight:600;font-size:15px;color:var(--cream)}
+.empty-sub{color:var(--muted);font-size:13px;margin:6px 0 16px}
+.invite-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;
+  background:var(--amber);color:#221604;font-weight:600;font-size:14px}
+.invite-btn:active{transform:scale(.97)}
+.invite-btn svg{stroke:#221604}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(8px);
+  background:var(--panel-2);border:1px solid var(--line);color:var(--cream);
+  padding:10px 16px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;
+  transition:opacity .25s, transform .25s;z-index:50;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (prefers-reduced-motion:reduce){.pin.talking .ring{animation:none}.pin{transition:none}}
